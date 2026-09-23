@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的课表生成器</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        #main { width: 800px; height: 600px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <h1>我的专业课表</h1>
+    <div id="main"></div>
+    <script>
+        // 这里以后会通过 fetch 读取 data/courses.json 里的真实数据
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            title: { text: '数据加载中...', left: 'center' },
+            tooltip: {}
+        };
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
