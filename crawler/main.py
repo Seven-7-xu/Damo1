@@ -1,7 +1,10 @@
 # 这是一个思路代码，需要先 pip install easyocr
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 import requests
 from bs4 import BeautifulSoup
 import easyocr
+import urllib.request
 
 def fetch_charter_image_and_ocr():
     url = "https://www.qzoi.edu.cn/xygk/xxzc.htm"
@@ -15,12 +18,31 @@ def fetch_charter_image_and_ocr():
     
     # 拼接完整 URL（如果是相对路径）
     if not img_url.startswith('http'):
-        img_url = "https://www.qzoi.edu.cn" + img_url
+        img_url = "http://www.qzoi.edu.cn" + img_url
         
     print(f"找到图片地址: {img_url}")
     
     # 2. 下载图片
-    img_data = requests.get(img_url, headers=headers).content
+    print("正在下载图片...")
+    try:
+        #创建一个忽略SSL证书验证的上下文
+        context = ssl._create_unverified_context()
+        #使用urllib下载图片
+        req = urllib.request.Request(img_url, headers=headers)
+        with urllib.request.urlopen(req, context=context) as response:
+            print(f"请求状态码: {response.status}")
+            img_data = response.read()
+
+        #确保data目录存在
+        import os
+        os.makedirs("data", exist_ok=True)
+        with open("data/charter.jpg", "wb") as f:
+            f.write(img_data)
+        print("图片下载完成，已保存为 data/charter.jpg")
+    except Exception as e:
+        print(f"下载图片失败: {e}")
+        exit()
+    
     with open("data/charter.jpg", "wb") as f:
         f.write(img_data)
         
