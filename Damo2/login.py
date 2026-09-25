@@ -22,24 +22,32 @@ def login(session: requests.Session):
     soup = BeautifulSoup(r.text, "lxml")
 
     form = soup.find("form")
-    action = form.get("action") or LOGIN_URL
-
+    if not form:
+        print("[!] 未找到登录表单，将使用当前URL提交")
+    # 如果找不到 form，我们就不从 form 里找了，直接找页面里所有的 input
     data = {}
-    for inp in form.find_all("input"):
+    search_area = form if form else soup
+
+    for inp in search_area.find_all("input"):
         name = inp.get("name")
         if not name:
             continue
-        if inp.get("type") == "hidden":
-            data[name] = inp.get("value", "")
+        # 不管是隐藏还是普通输入框，先收集起来
+        data[name] = inp.get("value", "")
 
+    # 强行把账号密码塞进去（根据实际 name 替换）
+    data["username"] = os.getenv("JW_USER")
+    data["password"] = os.getenv("JW_PASS")
+            
     # 根据实际输入框的 name 属性修改
     data["username"] = os.getenv("JW_USER")
     data["password"] = os.getenv("JW_PASS")
 
+    # 不需要 action 了，直接提交到 LOGIN_URL
     r = session.post(
-        requests.compat.urljoin(LOGIN_URL, action),
-        data=data,
-        timeout=10,
+    LOGIN_URL,
+    data=data,
+    timeout=10,
     )
     r.raise_for_status()
 
